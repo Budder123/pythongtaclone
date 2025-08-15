@@ -1,5 +1,5 @@
 from direct.showbase.ShowBase import ShowBase
-from panda3d.core import CollisionTraverser, CollisionHandlerPusher, GraphicsOutput, GraphicsPipe, FrameBufferProperties, WindowProperties, OrthographicLens
+from panda3d.core import CollisionTraverser, CollisionHandlerPusher, GraphicsOutput, GraphicsPipe, FrameBufferProperties, WindowProperties, OrthographicLens, AmbientLight, DirectionalLight
 from src.world import World
 from src.player import Player
 from src.ui import UI
@@ -11,6 +11,28 @@ class Game(ShowBase):
         # Set background color and disable mouse
         self.win.setClearColor((0.4, 0.7, 1.0, 1.0))
         self.disableMouse()
+
+        # Enable the automatic shader generator for lighting and shadows
+        self.render.setShaderAuto()
+
+        # --- Lighting Setup ---
+        # Add an ambient light to softly illuminate the whole scene
+        ambient_light = AmbientLight('ambient_light')
+        ambient_light.setColor((0.3, 0.3, 0.3, 1))
+        ambient_light_np = self.render.attachNewNode(ambient_light)
+        self.render.setLight(ambient_light_np)
+
+        # Add a directional light to simulate the sun
+        dir_light = DirectionalLight('dir_light')
+        dir_light.setColor((0.8, 0.8, 0.7, 1))
+        dir_light_np = self.render.attachNewNode(dir_light)
+        dir_light_np.setHpr(0, -60, 0)  # Angle the light down
+        self.render.setLight(dir_light_np)
+
+        # Enable shadows for the directional light
+        dir_light.setShadowCaster(True, 2048, 2048)
+        dir_light.getLens().setFilmSize(200, 200) # Set the area covered by shadows
+        dir_light.getLens().setNearFar(10, 200)
 
         # Initialize world and player
         self.world = World(self)

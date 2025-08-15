@@ -26,6 +26,32 @@ class Player:
         cabin.setPos(0, -0.1, 0.3)  # Positioned towards the back of the chassis
         cabin.setColor(0.6, 0.1, 0.1, 1)  # A slightly different shade of red
 
+        # Add headlights
+        headlight_l = self.base.loader.loadModel("models/box")
+        headlight_l.reparentTo(self.node)
+        headlight_l.setScale(0.1, 0.05, 0.1)
+        headlight_l.setPos(-0.5, 1.2, 0.1) # The chassis is 1.2 units long in Y
+        headlight_l.setColor(1, 1, 0.5, 1)
+
+        headlight_r = self.base.loader.loadModel("models/box")
+        headlight_r.reparentTo(self.node)
+        headlight_r.setScale(0.1, 0.05, 0.1)
+        headlight_r.setPos(0.5, 1.2, 0.1)
+        headlight_r.setColor(1, 1, 0.5, 1)
+
+        # Add taillights
+        taillight_l = self.base.loader.loadModel("models/box")
+        taillight_l.reparentTo(self.node)
+        taillight_l.setScale(0.1, 0.05, 0.1)
+        taillight_l.setPos(-0.5, -1.2, 0.1)
+        taillight_l.setColor(1, 0, 0, 1)
+
+        taillight_r = self.base.loader.loadModel("models/box")
+        taillight_r.reparentTo(self.node)
+        taillight_r.setScale(0.1, 0.05, 0.1)
+        taillight_r.setPos(0.5, -1.2, 0.1)
+        taillight_r.setColor(1, 0, 0, 1)
+
         # Game state variables
         self.speed = 0.0
         self.wanted_level = 0
