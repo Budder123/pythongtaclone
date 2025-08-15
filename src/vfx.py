@@ -1,5 +1,6 @@
 import os
 from panda3d.core import Filename, Point3, Vec3, Vec4, PNMImage, Texture
+from panda3d.physics import LinearVectorForce
 from direct.particles.Particles import Particles
 from direct.particles.ParticleEffect import ParticleEffect
 from direct.particles.ForceGroup import ForceGroup
@@ -91,7 +92,8 @@ def _configure_sparks_effect(p):
     p.emitter.setAmplitudeSpread(2.0)
     p.emitter.setRadiateOrigin(Point3(0, 0, 0))
 
-    gravity_force = Vec3(0.0, 0.0, -15.0)
+    # Add a gravity force
+    gravity_force = LinearVectorForce(0, 0, -15)
     force_group = ForceGroup()
     force_group.addForce(gravity_force)
     p.addForceGroup(force_group)
