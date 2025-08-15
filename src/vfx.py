@@ -14,7 +14,7 @@ def _create_particle_texture():
     img.renderSpot(
         (1, 1, 1, 0.7), # Center color (white, mostly opaque)
         (0.5, 0.5, 0.5, 0.0), # Edge color (grey, fully transparent)
-        30, 30 # Center x, y
+        30, 30 # Radius, falloff
     )
     tex = Texture()
     tex.load(img)
@@ -92,12 +92,6 @@ def _configure_sparks_effect(p):
     p.emitter.setAmplitudeSpread(2.0)
     p.emitter.setRadiateOrigin(Point3(0, 0, 0))
 
-    # Add a gravity force
-    gravity_force = LinearVectorForce(0, 0, -15)
-    force_group = ForceGroup()
-    force_group.addForce(gravity_force)
-    p.addForceGroup(force_group)
-
 def create_boost_effect(base):
     """Creates a particle effect for the car's boost."""
     effect = ParticleEffect()
@@ -114,4 +108,11 @@ def create_sparks_effect(base):
     base.enableParticles()
     _configure_sparks_effect(particles)
     effect.addParticles(particles)
+
+    # The ForceGroup must be added to the ParticleEffect, not the Particles object.
+    gravity_force = LinearVectorForce(0, 0, -15)
+    force_group = ForceGroup()
+    force_group.addForce(gravity_force)
+    effect.addForceGroup(force_group)
+
     return effect
