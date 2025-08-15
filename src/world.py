@@ -26,25 +26,37 @@ class World:
 
     def generate_city(self):
         """
-        Generates a city layout from a predefined map and sets ground texture scale.
+        Generates a more organic city layout using a random walk algorithm.
         """
-        # Map definition: 0 = road, 1 = building
-        city_map = [
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-            [1, 0, 1, 1, 0, 1, 1, 1, 0, 1],
-            [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
-            [1, 0, 1, 0, 1, 1, 0, 1, 0, 1],
-            [1, 0, 0, 0, 1, 1, 0, 0, 0, 1],
-            [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
-            [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
-            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        ]
+        map_width, map_height = 20, 20
+        self.city_map = [[1 for _ in range(map_width)] for _ in range(map_height)]
+
+        # Drunken walk algorithm to carve roads
+        x, y = map_width // 2, map_height // 2
+        self.city_map[y][x] = 0
+        num_roads = (map_width * map_height) // 3 # Carve out about 1/3 of the map
+
+        for _ in range(num_roads):
+            # Move in a random direction
+            dx, dy = random.choice([(0, 1), (0, -1), (1, 0), (-1, 0)])
+            x, y = x + dx, y + dy
+
+            # Keep walker within bounds
+            x = max(1, min(x, map_width - 2))
+            y = max(1, min(y, map_height - 2))
+
+            # Carve road (and make it a bit thicker)
+            for i in range(-1, 2):
+                for j in range(-1, 2):
+                    if 0 <= y+i < map_height and 0 <= x+j < map_width:
+                        # Don't carve the absolute edges of the map
+                        if 0 < y+i < map_height-1 and 0 < x+j < map_width-1:
+                             self.city_map[y+i][x+j] = 0
 
         cell_size = 12
-        map_size = len(city_map)
-        offset = (map_size * cell_size) / 2.0
+        self.map_size = map_width # Assume square map for now
+        self.cell_size = cell_size
+        offset = (self.map_size * self.cell_size) / 2.0
 
         # Scale the ground texture to align with the city grid
         ground_card_size = 200 # as defined in __init__
@@ -55,12 +67,12 @@ class World:
         tex_offset = 0.5 * (cell_size / ground_card_size)
         self.ground.setTexOffset(TextureStage.getDefault(), tex_offset, tex_offset)
 
-        for y, row in enumerate(city_map):
+        for y, row in enumerate(self.city_map):
             for x, cell in enumerate(row):
                 if cell == 1:
-                    pos_x = x * cell_size - offset + cell_size / 2.0
-                    pos_y = y * cell_size - offset + cell_size / 2.0
-                    self.create_building(pos_x, pos_y, cell_size)
+                    pos_x = x * self.cell_size - offset + self.cell_size / 2.0
+                    pos_y = y * self.cell_size - offset + self.cell_size / 2.0
+                    self.create_building(pos_x, pos_y, self.cell_size)
 
     def _create_road_texture(self):
         """Generates a procedural road texture for an intersection."""
@@ -124,6 +136,17 @@ class World:
         tex.setWrapU(Texture.WM_repeat)
         tex.setWrapV(Texture.WM_repeat)
         return tex
+
+    def get_safe_spawn_point(self):
+        """Finds the first road tile '0' and returns its world coordinates."""
+        offset = (self.map_size * self.cell_size) / 2.0
+        for y, row in enumerate(self.city_map):
+            for x, cell in enumerate(row):
+                if cell == 0:
+                    pos_x = x * self.cell_size - offset + self.cell_size / 2.0
+                    pos_y = y * self.cell_size - offset + self.cell_size / 2.0
+                    return Point3(pos_x, pos_y, 0.5) # Return as a Point3 object
+        return Point3(0, 0, 0.5) # Fallback, though should not be reached
 
     def create_building(self, x, y, size):
         """

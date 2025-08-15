@@ -3,19 +3,20 @@ from direct.interval.IntervalGlobal import Sequence, LerpColorScaleInterval, Fun
 from src.vfx import create_boost_effect
 
 class Player:
-    def __init__(self, base, sound_manager):
+    def __init__(self, base, sound_manager, spawn_pos):
         """
         Initializes the player, including model, controls, and physics.
 
         :param base: The ShowBase instance.
         :param sound_manager: The game's sound manager.
+        :param spawn_pos: The Point3 position to spawn the player.
         """
         self.base = base
         self.sound_manager = sound_manager
 
         # Create the player node and attach the model to it
         self.node = self.base.render.attachNewNode("player")
-        self.node.setPos(0, 0, 0.5)
+        self.node.setPos(spawn_pos)
 
         # Create a more detailed car model from basic shapes
         chassis = self.base.loader.loadModel("models/box")
@@ -92,7 +93,9 @@ class Player:
         self.base.accept("shift-up", self.updateKeyMap, ["boost", False])
 
         # Set up player collision
-        c_solid = CollisionSphere(0, 0, 0.5, 1.2)
+        # The sphere is raised so its bottom is above the ground (z=0)
+        # to prevent it from getting stuck.
+        c_solid = CollisionSphere(0, 0, 1.0, 1.2)
         self.collider_node = self.node.attachNewNode(CollisionNode('player_collider'))
         self.collider_node.node().addSolid(c_solid)
         self.collider_node.node().setFromCollideMask(BitMask32.allOff())

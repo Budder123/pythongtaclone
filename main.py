@@ -41,7 +41,8 @@ class Game(ShowBase):
         # Initialize world, player, and managers
         self.world = World(self)
         self.sound_manager = SoundManager(self)
-        self.player = Player(self, self.sound_manager)
+        spawn_point = self.world.get_safe_spawn_point()
+        self.player = Player(self, self.sound_manager, spawn_point)
 
         # Set up main camera
         self.camera.setPos(0, 0, 50)
