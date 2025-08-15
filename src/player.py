@@ -104,10 +104,11 @@ class Player:
         img.addAlpha()
         img.fill(0, 0, 0)
         img.alpha_fill(0)
+        # renderSpot takes (fg, bg, radius, falloff). It renders in the center.
         img.renderSpot(
             (1, 1, 1, 0.4), # Faint white color with alpha
             (0.5, 0.5, 0.5, 0.0), # Fade to transparent
-            32, 64, 30, 60 # Center, radius, falloff
+            60, 30 # Radius, falloff
         )
         tex = Texture()
         tex.load(img)
