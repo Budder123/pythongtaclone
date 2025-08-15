@@ -5,7 +5,7 @@ Known pipe types:
 :display:egldisplay(warning): Couldn't initialize the default EGL display: EGL_NOT_INITIALIZED
 :ShowBase(warning): Unable to open 'onscreen' window.
 Traceback (most recent call last):
-  File "/app/main.py", line 147, in <module>
+  File "/app/main.py", line 108, in <module>
     app = Game()
           ^^^^^^
   File "/app/main.py", line 13, in __init__
