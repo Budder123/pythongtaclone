@@ -1,5 +1,6 @@
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import CollisionTraverser, CollisionHandlerPusher, CollisionHandlerEvent, GraphicsOutput, GraphicsPipe, FrameBufferProperties, WindowProperties, OrthographicLens, AmbientLight, DirectionalLight, LVector3
+from direct.interval.IntervalGlobal import Sequence, Wait, Func
 import random
 from src.world import World
 from src.player import Player
@@ -99,9 +100,17 @@ class Game(ShowBase):
 
             # Create a one-shot spark effect at the collision point
             collision_point = entry.getSurfacePoint(self.render)
+
+            # Use a sequence to play the effect and then clean it up
             sparks = self.sparks_vfx.make_copy()
             sparks.setPos(collision_point)
-            sparks.start()
+
+            cleanup_sequence = Sequence(
+                Func(sparks.start),
+                Wait(1.0), # Wait for the effect to finish
+                Func(sparks.cleanup)
+            )
+            cleanup_sequence.start()
 
     def gameLoop(self, task):
         """The main game loop, which updates game state and camera."""

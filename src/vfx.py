@@ -67,7 +67,6 @@ def _configure_sparks_effect(p):
     p.setBirthRate(0.01)
     p.setLitterSize(20)
     p.setLitterSpread(0)
-    p.emitter.setDuration(0.1)
 
     p.factory.setLifespanBase(0.5)
     p.factory.setLifespanSpread(0.2)
