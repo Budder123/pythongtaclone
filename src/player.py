@@ -59,6 +59,8 @@ class Player:
         self.skid_texture = self._create_skid_texture()
         self.skid_timer = 0.0
         self.skid_interval = 0.05 # Time between skid marks
+        self.skid_card_maker = CardMaker('skidmark')
+        self.skid_card_maker.setFrame(-0.5, 0.5, -1.5, 1.5) # Width and length
 
         # Physics and State Variables
         self.current_speed = 0.0
@@ -184,12 +186,9 @@ class Player:
 
     def _create_skid_mark(self):
         """Creates a skid mark quad under the car's rear wheels."""
-        cm = CardMaker('skidmark')
-        cm.setFrame(-0.5, 0.5, -1.5, 1.5) # Width and length of the mark
-
         # Create a NodePath for each wheel's skid
         for side in [-1, 1]: # Left and right wheels
-            skid_np = NodePath(cm.generate())
+            skid_np = NodePath(self.skid_card_maker.generate())
             skid_np.setTexture(self.skid_texture)
             skid_np.setTransparency(True)
 
