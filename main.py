@@ -82,7 +82,9 @@ class Game(ShowBase):
 
         # --- Camera Logic ---
         # 1. Calculate desired position (behind and above player)
-        behind_vec = self.player.node.getQuat().getBack()
+        # Get the vector pointing behind the player in world space
+        behind_vec = self.render.getRelativeVector(self.player.node, Vec3(0, -1, 0))
+        behind_vec.normalize()
         desired_pos = self.player.node.getPos() + behind_vec * 15 + Vec3(0, 0, 6)
 
         # 2. Smoothly interpolate to the desired position
