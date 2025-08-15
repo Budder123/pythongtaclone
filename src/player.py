@@ -101,10 +101,12 @@ class Player:
     def _create_skid_texture(self):
         """Generates a simple, semi-transparent black texture for skid marks."""
         img = PNMImage(64, 128, 4)
-        img.fill(0, 0, 0, 0) # Start fully transparent
+        img.addAlpha()
+        img.fill(0, 0, 0)
+        img.alpha_fill(0)
         img.renderSpot(
             (1, 1, 1, 0.4), # Faint white color with alpha
-            (1, 1, 1, 0.0), # Fade to transparent
+            (0.5, 0.5, 0.5, 0.0), # Fade to transparent
             32, 64, 30, 60 # Center, radius, falloff
         )
         tex = Texture()
