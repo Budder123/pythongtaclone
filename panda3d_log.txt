@@ -1,0 +1,21 @@
+Known pipe types:
+  glxGraphicsPipe
+(1 aux display modules not yet loaded.)
+:display:x11display(error): Could not open display ":0.0".
+:display:egldisplay(warning): Couldn't initialize the default EGL display: EGL_NOT_INITIALIZED
+:ShowBase(warning): Unable to open 'onscreen' window.
+Traceback (most recent call last):
+  File "/app/main.py", line 52, in <module>
+    app = Game()
+          ^^^^^^
+  File "/app/main.py", line 8, in __init__
+    super().__init__()
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/direct/showbase/ShowBase.py", line 341, in __init__
+    self.openDefaultWindow(startDirect = False, props=props)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/direct/showbase/ShowBase.py", line 1026, in openDefaultWindow
+    self.openMainWindow(*args, **kw)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/direct/showbase/ShowBase.py", line 1061, in openMainWindow
+    self.openWindow(*args, **kw)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/site-packages/direct/showbase/ShowBase.py", line 806, in openWindow
+    raise Exception('Could not open window.')
+Exception: Could not open window.
