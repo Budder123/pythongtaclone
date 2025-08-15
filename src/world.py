@@ -1,4 +1,5 @@
 from panda3d.core import CardMaker, CollisionNode, CollisionBox, Point3, BitMask32
+import random
 
 class World:
     def __init__(self, base):
@@ -52,18 +53,21 @@ class World:
 
     def create_building(self, x, y, size):
         """
-        Creates a single building with a collision solid.
+        Creates a single building with a collision solid and randomized appearance.
         """
         # Create the visual model
         building = self.base.loader.loadModel("models/box")
         building.reparentTo(self.base.render)
         building.setPos(x, y, 0)
-        building_height = 16
+
+        # Randomize height and color
+        building_height = random.uniform(10, 30)
+        building_color = random.uniform(0.3, 0.6)
         building.setScale(size / 2.0, size / 2.0, building_height / 2.0)
-        building.setColor(0.5, 0.5, 0.5, 1)
+        building.setColor(building_color, building_color, building_color, 1)
         self.buildings.append(building)
 
-        # Create the collision solid
+        # Create the collision solid to match the new height
         half_size = size / 2.0
         c_solid = CollisionBox(Point3(-half_size, -half_size, 0), Point3(half_size, half_size, building_height))
         c_node = CollisionNode('building_collider')

@@ -13,14 +13,27 @@ class Player:
         self.node = self.base.render.attachNewNode("player")
         self.node.setPos(0, 0, 0.5)
 
-        model = self.base.loader.loadModel("models/box")
-        model.reparentTo(self.node)
-        model.setScale(0.5, 1, 0.5) # Make it look more like a car
-        self.node.setColor(1, 0, 0, 1)
+        # Create a more detailed car model from basic shapes
+        chassis = self.base.loader.loadModel("models/box")
+        chassis.reparentTo(self.node)
+        chassis.setScale(0.7, 1.2, 0.3)  # Wider, longer, flatter
+        chassis.setPos(0, 0, 0)
+        chassis.setColor(0.8, 0.1, 0.1, 1)  # Dark red
+
+        cabin = self.base.loader.loadModel("models/box")
+        cabin.reparentTo(self.node)
+        cabin.setScale(0.5, 0.6, 0.3)  # Smaller cabin on top
+        cabin.setPos(0, -0.1, 0.3)  # Positioned towards the back of the chassis
+        cabin.setColor(0.6, 0.1, 0.1, 1)  # A slightly different shade of red
+
+        # Game state variables
+        self.speed = 0.0
+        self.wanted_level = 0
+        self.boost_level = 100.0
 
         # Keyboard input state
         self.keyMap = {
-            "forward": False, "backward": False, "left": False, "right": False
+            "forward": False, "backward": False, "left": False, "right": False, "boost": False
         }
 
         # Register key events
@@ -32,6 +45,8 @@ class Player:
         self.base.accept("a-up", self.updateKeyMap, ["left", False])
         self.base.accept("d", self.updateKeyMap, ["right", True])
         self.base.accept("d-up", self.updateKeyMap, ["right", False])
+        self.base.accept("shift", self.updateKeyMap, ["boost", True])
+        self.base.accept("shift-up", self.updateKeyMap, ["boost", False])
 
         # Set up player collision
         c_solid = CollisionSphere(0, 0, 0.5, 1.2) # Center and radius
@@ -50,14 +65,32 @@ class Player:
         """
         Updates the player's state each frame.
         """
-        # Apply rotation
+        # --- Boost Logic ---
+        is_boosting = self.keyMap["boost"] and self.boost_level > 0
+
+        if is_boosting:
+            # Drain boost level while boosting
+            self.boost_level = max(0, self.boost_level - 25 * dt)
+        else:
+            # Regenerate boost level when not boosting
+            self.boost_level = min(100, self.boost_level + 10 * dt)
+
+        # --- Speed and Movement Logic ---
+        forward_speed = 40 if is_boosting else 20
+        backward_speed = 10
+        mph_conversion_factor = 3.5
+
+        if self.keyMap["forward"]:
+            self.speed = forward_speed * mph_conversion_factor
+            self.node.setY(self.node, forward_speed * dt)
+        elif self.keyMap["backward"]:
+            self.speed = backward_speed * mph_conversion_factor
+            self.node.setY(self.node, -backward_speed * dt)
+        else:
+            self.speed = 0
+
+        # --- Rotation Logic ---
         if self.keyMap["left"]:
             self.node.setH(self.node.getH() + 150 * dt)
         if self.keyMap["right"]:
             self.node.setH(self.node.getH() - 150 * dt)
-
-        # Apply movement (relative to the player's current rotation)
-        if self.keyMap["forward"]:
-            self.node.setY(self.node, 20 * dt)
-        if self.keyMap["backward"]:
-            self.node.setY(self.node, -10 * dt)
