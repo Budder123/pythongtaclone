@@ -6,6 +6,11 @@ from direct.particles.ForceGroup import ForceGroup
 
 def _configure_boost_effect(p):
     """Configures a Particles object for the boost effect."""
+    # These must be set before any other component properties are accessed.
+    p.setFactory("PointParticleFactory")
+    p.setRenderer("SpriteParticleRenderer")
+    p.setEmitter("SphereVolumeEmitter")
+
     p.setPoolSize(64)
     p.setBirthRate(0.01)
     p.setLitterSize(2)
@@ -39,6 +44,11 @@ def _configure_boost_effect(p):
 
 def _configure_sparks_effect(p):
     """Configures a Particles object for the sparks effect."""
+    # These must be set before any other component properties are accessed.
+    p.setFactory("PointParticleFactory")
+    p.setRenderer("SpriteParticleRenderer")
+    p.setEmitter("SphereVolumeEmitter")
+
     p.setPoolSize(128)
     p.setBirthRate(0.01)
     p.setLitterSize(20)
