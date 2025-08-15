@@ -100,8 +100,10 @@ class World:
     def _create_building_texture(self):
         """Generates a procedural window texture and returns it."""
         img_size_x, img_size_y = 64, 128
-        image = PNMImage(img_size_x, img_size_y)
-        image.fill(0.05, 0.05, 0.05)  # Dark background
+        image = PNMImage(img_size_x, img_size_y, 4)
+        image.addAlpha()
+        image.fill(0.05, 0.05, 0.05)
+        image.alpha_fill(1)
 
         window_color = (0.9, 0.85, 0.6)  # Warm yellow
         window_spacing_x = 16

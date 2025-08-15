@@ -59,8 +59,8 @@ class Player:
         self.skid_texture = self._create_skid_texture()
         self.skid_timer = 0.0
         self.skid_interval = 0.05 # Time between skid marks
-        self.skid_card_maker = CardMaker('skidmark')
-        self.skid_card_maker.setFrame(-0.5, 0.5, -1.5, 1.5) # Width and length
+        self.skid_card_maker = CardMaker('skidmark_cm')
+        self.skid_card_maker.setFrame(-0.5, 0.5, -1.5, 1.5)
 
         # Physics and State Variables
         self.current_speed = 0.0
