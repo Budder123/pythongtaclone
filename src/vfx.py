@@ -10,10 +10,10 @@ def create_boost_effect(base):
     p.reparentTo(base.render) # Will be reparented to the car later
 
     # Particles parameters
-    p.setPoolSize(64)
-    p.setBirthRate(0.01)
-    p.setLitterSize(2)
-    p.setLitterSpread(0)
+    p.particles.setPoolSize(64)
+    p.particles.setBirthRate(0.01)
+    p.particles.setLitterSize(2)
+    p.particles.setLitterSpread(0)
 
     # Factory parameters
     p.factory.setLifespanBase(0.4)
@@ -53,10 +53,10 @@ def create_sparks_effect(base):
     p.setPos(0, 0, 0)
 
     # Set up a one-shot burst
-    p.setPoolSize(128)
-    p.setBirthRate(0.01)
-    p.setLitterSize(20)
-    p.setLitterSpread(0)
+    p.particles.setPoolSize(128)
+    p.particles.setBirthRate(0.01)
+    p.particles.setLitterSize(20)
+    p.particles.setLitterSpread(0)
     p.emitter.setDuration(0.1) # Emit for a short time
 
     # Factory parameters
