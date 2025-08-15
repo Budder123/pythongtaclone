@@ -1,8 +1,11 @@
 from direct.showbase.ShowBase import ShowBase
-from panda3d.core import CollisionTraverser, CollisionHandlerPusher, GraphicsOutput, GraphicsPipe, FrameBufferProperties, WindowProperties, OrthographicLens, AmbientLight, DirectionalLight
+from panda3d.core import CollisionTraverser, CollisionHandlerPusher, CollisionHandlerEvent, GraphicsOutput, GraphicsPipe, FrameBufferProperties, WindowProperties, OrthographicLens, AmbientLight, DirectionalLight, LVector3
+import random
 from src.world import World
 from src.player import Player
 from src.ui import UI
+from src.sound import SoundManager
+from src.vfx import create_sparks_effect
 
 class Game(ShowBase):
     def __init__(self):
@@ -34,9 +37,10 @@ class Game(ShowBase):
         dir_light.getLens().setFilmSize(200, 200) # Set the area covered by shadows
         dir_light.getLens().setNearFar(10, 200)
 
-        # Initialize world and player
+        # Initialize world, player, and managers
         self.world = World(self)
-        self.player = Player(self)
+        self.sound_manager = SoundManager(self)
+        self.player = Player(self, self.sound_manager)
 
         # Set up main camera
         self.camera.setPos(0, 0, 50)
@@ -59,17 +63,45 @@ class Game(ShowBase):
 
         # Set up collision detection
         self.cTrav = CollisionTraverser()
-        self.pusher = CollisionHandlerPusher()
+        self.pusher = CollisionHandlerPusher() # Handles physics
+        self.event_handler = CollisionHandlerEvent() # Handles sound events
 
-        # Add the player's collider to the handler and the traverser
+        # Configure the event handler to fire an event named 'player-collided'
+        self.event_handler.addInPattern('%fn-collided')
+
+        # Register the event and its callback
+        self.accept('player_collider-collided', self.handle_collision)
+
+        # Add the player's collider to both handlers
         self.pusher.addCollider(self.player.collider_node, self.player.node)
         self.cTrav.addCollider(self.player.collider_node, self.pusher)
-
-        # Uncomment this line to see the collision solids
-        # self.cTrav.showCollisions(self.render)
+        self.cTrav.addCollider(self.player.collider_node, self.event_handler)
 
         # Game loop
         self.taskMgr.add(self.gameLoop, "gameLoop")
+
+        # Start game sounds
+        self.sound_manager.start_engine()
+
+        # Camera shake state
+        self.shake_duration = 0.0
+        self.shake_magnitude = 0.8
+
+        # VFX Templates
+        self.sparks_vfx = create_sparks_effect(self)
+
+    def handle_collision(self, entry):
+        """Callback for when the player collides with something."""
+        # Only trigger effects if the car is moving at a decent speed
+        if abs(self.player.current_speed) > 10:
+            self.sound_manager.play_collision()
+            self.shake_duration = 0.2  # Shake for 0.2 seconds
+
+            # Create a one-shot spark effect at the collision point
+            collision_point = entry.getSurfacePoint(self.render)
+            sparks = self.sparks_vfx.make_copy()
+            sparks.setPos(collision_point)
+            sparks.start()
 
     def gameLoop(self, task):
         """The main game loop, which updates game state and camera."""
@@ -81,11 +113,22 @@ class Game(ShowBase):
         # Update the UI
         self.ui.update()
 
+        # Update sounds
+        self.sound_manager.update(self.player.speed, self.player.top_speed)
+
         # Run the collision traversal
         self.cTrav.traverse(self.render)
 
         # Update the cameras to follow the player
-        self.camera.setPos(self.player.node.getX(), self.player.node.getY(), 50)
+        cam_pos = LVector3(self.player.node.getX(), self.player.node.getY(), 50)
+
+        # Apply camera shake if active
+        if self.shake_duration > 0:
+            self.shake_duration -= dt
+            cam_pos.x += random.uniform(-self.shake_magnitude, self.shake_magnitude)
+            cam_pos.y += random.uniform(-self.shake_magnitude, self.shake_magnitude)
+
+        self.camera.setPos(cam_pos)
         self.minimap_cam.setPos(self.player.node.getX(), self.player.node.getY(), 150)
 
         return task.cont
