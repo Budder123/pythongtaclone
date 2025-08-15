@@ -1,4 +1,4 @@
-from panda3d.core import LVector3, CollisionNode, CollisionSphere, BitMask32, CardMaker, Texture, PNMImage, NodePath
+from panda3d.core import LVector3, CollisionNode, CollisionSphere, CollisionCapsule, BitMask32, CardMaker, Texture, PNMImage, NodePath, Point3
 from direct.interval.IntervalGlobal import Sequence, LerpColorScaleInterval, Func
 from src.vfx import create_boost_effect
 
@@ -18,37 +18,40 @@ class Player:
         self.node = self.base.render.attachNewNode("player")
         self.node.setPos(spawn_pos)
 
+        # This node will handle the visual model for effects like suspension
+        self.visuals_node = self.node.attachNewNode("player_visuals")
+
         # Create a more detailed car model from basic shapes
         chassis = self.base.loader.loadModel("models/box")
-        chassis.reparentTo(self.node)
+        chassis.reparentTo(self.visuals_node)
         chassis.setScale(0.7, 1.2, 0.3)
         chassis.setPos(0, 0, 0)
         chassis.setColor(0.8, 0.1, 0.1, 1)
 
         cabin = self.base.loader.loadModel("models/box")
-        cabin.reparentTo(self.node)
+        cabin.reparentTo(self.visuals_node)
         cabin.setScale(0.5, 0.6, 0.3)
         cabin.setPos(0, -0.1, 0.3)
         cabin.setColor(0.6, 0.1, 0.1, 1)
 
         # Add headlights and taillights
         headlight_l = self.base.loader.loadModel("models/box")
-        headlight_l.reparentTo(self.node)
+        headlight_l.reparentTo(self.visuals_node)
         headlight_l.setScale(0.1, 0.05, 0.1)
         headlight_l.setPos(-0.5, 1.2, 0.1)
         headlight_l.setColor(1, 1, 0.5, 1)
         headlight_r = self.base.loader.loadModel("models/box")
-        headlight_r.reparentTo(self.node)
+        headlight_r.reparentTo(self.visuals_node)
         headlight_r.setScale(0.1, 0.05, 0.1)
         headlight_r.setPos(0.5, 1.2, 0.1)
         headlight_r.setColor(1, 1, 0.5, 1)
         taillight_l = self.base.loader.loadModel("models/box")
-        taillight_l.reparentTo(self.node)
+        taillight_l.reparentTo(self.visuals_node)
         taillight_l.setScale(0.1, 0.05, 0.1)
         taillight_l.setPos(-0.5, -1.2, 0.1)
         taillight_l.setColor(1, 0, 0, 1)
         taillight_r = self.base.loader.loadModel("models/box")
-        taillight_r.reparentTo(self.node)
+        taillight_r.reparentTo(self.visuals_node)
         taillight_r.setScale(0.1, 0.05, 0.1)
         taillight_r.setPos(0.5, -1.2, 0.1)
         taillight_r.setColor(1, 0, 0, 1)
@@ -65,11 +68,11 @@ class Player:
 
         # Physics and State Variables
         self.current_speed = 0.0
-        self.acceleration = 20.0
-        self.deceleration = 30.0
-        self.max_speed = 40.0
-        self.max_boost_speed = 70.0
-        self.steering_speed = 120.0
+        self.acceleration = 30.0       # Increased for faster pickup
+        self.deceleration = 25.0       # Reduced for more coasting
+        self.max_speed = 45.0          # Slightly increased top speed
+        self.max_boost_speed = 75.0
+        self.steering_speed = 150.0      # Increased for more responsive turning
         self.top_speed = self.max_boost_speed * 3.5 # For UI and sound pitch
         self.wanted_level = 0
         self.boost_level = 100.0
@@ -92,10 +95,14 @@ class Player:
         self.base.accept("shift", self.updateKeyMap, ["boost", True])
         self.base.accept("shift-up", self.updateKeyMap, ["boost", False])
 
-        # Set up player collision
-        # The sphere is raised so its bottom is above the ground (z=0)
-        # to prevent it from getting stuck.
-        c_solid = CollisionSphere(0, 0, 1.0, 1.2)
+        # Set up player collision using a capsule for a more accurate shape
+        # The capsule is defined by two endpoints and a radius.
+        # We raise it slightly to avoid getting stuck on the ground.
+        capsule_height = 0.8
+        capsule_radius = 0.7
+        p1 = Point3(0, -0.5, capsule_height)
+        p2 = Point3(0, 0.5, capsule_height)
+        c_solid = CollisionCapsule(p1, p2, capsule_radius)
         self.collider_node = self.node.attachNewNode(CollisionNode('player_collider'))
         self.collider_node.node().addSolid(c_solid)
         self.collider_node.node().setFromCollideMask(BitMask32.allOff())
@@ -162,10 +169,11 @@ class Player:
         self.current_speed = max(-self.max_speed * 0.5, min(target_max_speed, self.current_speed))
 
         # --- Drifting and Steering ---
-        is_drifting = is_turning and abs(self.current_speed) > self.max_speed * 0.4
+        is_drifting = is_turning and abs(self.current_speed) > self.max_speed * 0.6
         self.sound_manager.toggle_skid(is_drifting)
 
         if is_drifting:
+            self.current_speed *= 0.995 # Bleed a little speed when drifting
             self.skid_timer += dt
             if self.skid_timer > self.skid_interval:
                 self.skid_timer = 0
@@ -173,7 +181,7 @@ class Player:
 
         steering = self.steering_speed
         if is_drifting:
-            steering *= 1.25 # More responsive steering while drifting
+            steering *= 1.3 # More responsive steering while drifting
 
         # Steering is less effective at very high speeds
         steering_factor = 1.0 - (abs(self.current_speed) / (target_max_speed * 2.0))
@@ -183,6 +191,26 @@ class Player:
             self.node.setH(self.node.getH() + steering * dt)
         if self.keyMap["right"]:
             self.node.setH(self.node.getH() - steering * dt)
+
+        # --- Visual Suspension ---
+        lerp_speed = 10 * dt # How quickly the suspension reacts
+
+        # Pitch for acceleration/braking
+        target_pitch = 0
+        if is_accelerating and self.current_speed > 0: target_pitch = 2
+        elif is_braking and self.current_speed > 0: target_pitch = -2
+
+        # Roll for turning
+        target_roll = 0
+        if self.keyMap["left"] and self.current_speed != 0: target_roll = 3
+        elif self.keyMap["right"] and self.current_speed != 0: target_roll = -3
+
+        # Apply the lerp
+        current_p = self.visuals_node.getP()
+        current_r = self.visuals_node.getR()
+        new_p = current_p + lerp_speed * (target_pitch - current_p)
+        new_r = current_r + lerp_speed * (target_roll - current_r)
+        self.visuals_node.setHpr(self.visuals_node.getH(), new_p, new_r)
 
         # --- Apply final movement ---
         self.node.setY(self.node, self.current_speed * dt)
