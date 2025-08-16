@@ -127,7 +127,10 @@ class Player:
                 self.skid_timer = 0
                 self._create_skid_mark()
 
-        steering = self.steering_speed * (1.0 - (abs(self.current_speed) / (target_max_speed * 1.5)))
+        if is_boosting:
+            steering = self.steering_speed
+        else:
+            steering = self.steering_speed * (1.0 - (abs(self.current_speed) / (target_max_speed * 1.5)))
         if is_drifting:
             steering *= 1.3
         if self.keyMap["left"]:
