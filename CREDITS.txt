@@ -1,0 +1,11 @@
+This project uses assets from the following creators:
+
+3D Models:
+- "Porsche 911 RSR (2018)" by Keijibi, licensed under Creative Commons Attribution (CC BY 4.0).
+  - Source: https://sketchfab.com/3d-models/porsche-911-rsr-2018-9b74e7b3348149df9835e4a302d955e6
+  - This license requires attribution.
+
+Sound Effects:
+- Placeholder sounds. To be replaced.
+
+All other assets are procedurally generated or created for this project.

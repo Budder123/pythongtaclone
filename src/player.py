@@ -1,6 +1,7 @@
 from panda3d.core import LVector3, CollisionNode, CollisionCapsule, BitMask32, CardMaker, Texture, PNMImage, NodePath, Point3
 from direct.interval.IntervalGlobal import Sequence, LerpColorScaleInterval, Func
 from src.vfx import create_boost_effect
+import gltf
 
 class Player:
     def __init__(self, base, sound_manager, spawn_pos):
@@ -12,38 +13,21 @@ class Player:
 
         self.visuals_node = self.node.attachNewNode("player_visuals")
 
-        chassis = self.base.loader.loadModel("models/box")
-        chassis.reparentTo(self.visuals_node)
-        chassis.setScale(0.7, 1.2, 0.3)
-        chassis.setPos(0, 0, 0)
-        chassis.setColor(0.8, 0.1, 0.1, 1)
-
-        cabin = self.base.loader.loadModel("models/box")
-        cabin.reparentTo(self.visuals_node)
-        cabin.setScale(0.5, 0.6, 0.3)
-        cabin.setPos(0, -0.1, 0.3)
-        cabin.setColor(0.6, 0.1, 0.1, 1)
-
-        headlight_l = self.base.loader.loadModel("models/box")
-        headlight_l.reparentTo(self.visuals_node)
-        headlight_l.setScale(0.1, 0.05, 0.1)
-        headlight_l.setPos(-0.5, 1.2, 0.1)
-        headlight_l.setColor(1, 1, 0.5, 1)
-        headlight_r = self.base.loader.loadModel("models/box")
-        headlight_r.reparentTo(self.visuals_node)
-        headlight_r.setScale(0.1, 0.05, 0.1)
-        headlight_r.setPos(0.5, 1.2, 0.1)
-        headlight_r.setColor(1, 1, 0.5, 1)
-        taillight_l = self.base.loader.loadModel("models/box")
-        taillight_l.reparentTo(self.visuals_node)
-        taillight_l.setScale(0.1, 0.05, 0.1)
-        taillight_l.setPos(-0.5, -1.2, 0.1)
-        taillight_l.setColor(1, 0, 0, 1)
-        taillight_r = self.base.loader.loadModel("models/box")
-        taillight_r.reparentTo(self.visuals_node)
-        taillight_r.setScale(0.1, 0.05, 0.1)
-        taillight_r.setPos(0.5, -1.2, 0.1)
-        taillight_r.setColor(1, 0, 0, 1)
+        # Load the new car model
+        try:
+            car_model = self.base.loader.loadModel("assets/models/porsche/scene.gltf")
+            car_model.reparentTo(self.visuals_node)
+            # Adjust scale and orientation - this will likely need tuning
+            car_model.setScale(0.8)
+            car_model.setH(180) # Turn it to face forward
+        except Exception as e:
+            print(f"Warning: Could not load Porsche model. Using fallback. Error: {e}")
+            # Fallback to procedural car if model fails to load
+            chassis = self.base.loader.loadModel("models/box")
+            chassis.reparentTo(self.visuals_node)
+            chassis.setScale(0.7, 1.2, 0.3)
+            chassis.setPos(0, 0, 0)
+            chassis.setColor(0.8, 0.1, 0.1, 1)
 
         self.boost_vfx = create_boost_effect(self.base)
         self.boost_vfx.reparentTo(self.node)
@@ -121,12 +105,11 @@ class Player:
         else:
             self.boost_level = min(100, self.boost_level + 15 * dt)
 
-        # --- New Physics Model ---
         if is_accelerating:
             self.current_speed += self.acceleration * dt
         elif is_braking:
             self.current_speed = max(0, self.current_speed - self.braking_force * dt) if self.current_speed > 0 else min(0, self.current_speed + self.braking_force * dt)
-        else: # Coasting with friction
+        else:
             if self.current_speed > 0:
                 self.current_speed = max(0, self.current_speed - self.friction * dt)
             else:
@@ -152,7 +135,6 @@ class Player:
         if self.keyMap["right"]:
             self.node.setH(self.node.getH() - steering * dt)
 
-        # --- Visual Suspension ---
         lerp_speed = 10 * dt
         target_pitch = 2 if is_accelerating and self.current_speed > 0 else (-2 if is_braking and self.current_speed > 0 else 0)
         target_roll = 3 if self.keyMap["left"] and self.current_speed != 0 else (-3 if self.keyMap["right"] and self.current_speed != 0 else 0)
@@ -176,5 +158,5 @@ class Player:
             skid_np.setR(-90)
 
             fade_out = LerpColorScaleInterval(skid_np, 1.5, (1,1,1,0), (1,1,1,0.5))
-            destroy = Func(skid_np.removeNode) # Corrected from .destroy()
+            destroy = Func(skid_np.removeNode)
             Sequence(fade_out, destroy).start()
