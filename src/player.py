@@ -1,4 +1,4 @@
-from panda3d.core import LVector3, CollisionNode, CollisionCapsule, BitMask32, CardMaker, Texture, PNMImage, NodePath, Point3, CollisionRay, CollisionHandlerQueue, Vec3
+from panda3d.core import LVector3, CollisionNode, CollisionCapsule, BitMask32, CardMaker, Texture, PNMImage, NodePath, Point3
 from direct.interval.IntervalGlobal import Sequence, LerpColorScaleInterval, Func
 from src.vfx import create_boost_effect
 
@@ -7,15 +7,7 @@ class Player:
         self.base = base
         self.sound_manager = sound_manager
 
-        # Suspension Physics
-        self.vertical_velocity = 0.0
-        self.ride_height = 1.0
-        self.spring_strength = 200.0
-        self.damping = 20.0
-        self.gravity = -9.8
-
         self.node = self.base.render.attachNewNode("player")
-        spawn_pos.setZ(self.ride_height)
         self.node.setPos(spawn_pos)
 
         self.visuals_node = self.node.attachNewNode("player_visuals")
@@ -50,7 +42,7 @@ class Player:
         self.current_speed = 0.0
         self.acceleration = 50.0
         self.braking_force = 100.0
-        self.friction = 25.0
+        self.friction = 15.0
         self.max_speed = 50.0
         self.max_boost_speed = 80.0
         self.steering_speed = 150.0
@@ -58,13 +50,6 @@ class Player:
         self.wanted_level = 0
         self.boost_level = 100.0
         self.was_boosting = False
-
-        # Suspension Ray
-        self.ray_node = self.node.attachNewNode(CollisionNode('suspension_ray'))
-        self.ray_node.node().addSolid(CollisionRay(0, 0, 0, 0, 0, -1))
-        self.ray_node.node().setFromCollideMask(BitMask32.bit(2))
-        self.ray_node.node().setIntoCollideMask(BitMask32.allOff())
-        self.ray_queue = CollisionHandlerQueue()
 
         self.keyMap = {"forward": False, "backward": False, "left": False, "right": False, "boost": False}
 
@@ -143,10 +128,7 @@ class Player:
                 self.skid_timer = 0
                 self._create_skid_mark()
 
-        steering_divisor = target_max_speed * 1.5
-        if is_boosting:
-            steering_divisor *= 2.0
-        steering = self.steering_speed * (1.0 - (abs(self.current_speed) / steering_divisor))
+        steering = self.steering_speed * (1.0 - (abs(self.current_speed) / (target_max_speed * 1.5)))
         if is_drifting:
             steering *= 1.3
         if self.keyMap["left"]:
@@ -165,29 +147,6 @@ class Player:
 
         self.node.setY(self.node, self.current_speed * dt)
         self.speed = abs(self.current_speed * 3.5)
-
-        # --- Suspension Logic ---
-        self.base.cTrav.traverse(self.base.render)
-
-        ground_z = -1000
-        if self.ray_queue.getNumEntries() > 0:
-            self.ray_queue.sortEntries()
-            ray_hit = self.ray_queue.getEntry(0)
-            ground_z = ray_hit.getSurfacePoint(self.base.render).getZ()
-
-        on_ground = self.node.getZ() < ground_z + self.ride_height + 0.1
-
-        if on_ground:
-            displacement = self.node.getZ() - (ground_z + self.ride_height)
-            spring_force = -displacement * self.spring_strength
-            damping_force = -self.vertical_velocity * self.damping
-            total_force = spring_force + damping_force
-            acceleration = total_force # mass = 1
-            self.vertical_velocity += acceleration * dt
-        else:
-            self.vertical_velocity += self.gravity * dt
-
-        self.node.setZ(self.node.getZ() + self.vertical_velocity * dt)
 
     def _create_skid_mark(self):
         for side in [-1, 1]:

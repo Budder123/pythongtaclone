@@ -14,7 +14,7 @@ class Game(ShowBase):
 
         self.win.setClearColor((0.4, 0.7, 1.0, 1.0))
         self.disableMouse()
-        # self.render.setShaderAuto()
+        self.render.setShaderAuto()
 
         ambient_light = AmbientLight('ambient_light')
         ambient_light.setColor((0.3, 0.3, 0.3, 1))
@@ -56,14 +56,12 @@ class Game(ShowBase):
         self.pusher.addCollider(self.player.collider_node, self.player.node)
         self.cTrav.addCollider(self.player.collider_node, self.pusher)
         self.cTrav.addCollider(self.player.collider_node, self.event_handler)
-        self.cTrav.addCollider(self.player.ray_node, self.player.ray_queue)
 
         self.taskMgr.add(self.gameLoop, "gameLoop")
         self.sound_manager.start_engine()
         self.shake_duration = 0.0
         self.shake_magnitude = 0.8
         self.sparks_vfx = create_sparks_effect(self)
-
 
     def handle_collision(self, entry):
         if abs(self.player.current_speed) > 10:
@@ -80,6 +78,7 @@ class Game(ShowBase):
         self.player.update(dt)
         self.ui.update()
         self.sound_manager.update(self.player.speed, self.player.top_speed)
+        self.cTrav.traverse(self.render)
 
         # --- Camera Logic ---
         # 1. Calculate desired position (behind and above player)

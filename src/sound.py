@@ -5,31 +5,10 @@ class SoundManager:
     """
     def __init__(self, base):
         self.base = base
-
-        # Load sounds within try-except blocks to handle missing files
-        try:
-            self.engine_sound = self.base.loader.loadSfx("assets/sounds/engine_idle.ogg")
-            self.engine_sound.setLoop(True)
-        except Exception:
-            self.engine_sound = None
-            print("Warning: Could not load assets/sounds/engine_idle.ogg")
-
+        self.engine_sound = None
         self.boost_sound = None
-
-        try:
-            self.collision_sound = self.base.loader.loadSfx("assets/sounds/exhaust_pop.ogg")
-        except Exception:
-            self.collision_sound = None
-            print("Warning: Could not load assets/sounds/exhaust_pop.ogg")
-
-        # try:
-        #     self.skid_sound = self.base.loader.loadSfx("assets/sounds/skid.wav")
-        #     self.skid_sound.setLoop(True)
-        # except Exception:
-        #     self.skid_sound = None
-        #     print("Warning: Could not load assets/sounds/skid.wav")
+        self.collision_sound = None
         self.skid_sound = None
-
         self.is_skidding = False
 
     def start_engine(self):
