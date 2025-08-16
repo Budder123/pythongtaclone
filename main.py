@@ -10,11 +10,11 @@ from src.vfx import create_sparks_effect
 
 class Game(ShowBase):
     def __init__(self):
-        super().__init__()
+        super().__init__(windowType='offscreen')
 
         self.win.setClearColor((0.4, 0.7, 1.0, 1.0))
         self.disableMouse()
-        self.render.setShaderAuto()
+        # self.render.setShaderAuto()
 
         ambient_light = AmbientLight('ambient_light')
         ambient_light.setColor((0.3, 0.3, 0.3, 1))
@@ -62,6 +62,13 @@ class Game(ShowBase):
         self.shake_duration = 0.0
         self.shake_magnitude = 0.8
         self.sparks_vfx = create_sparks_effect(self)
+
+        self.taskMgr.doMethodLater(2, self.save_screenshot_and_exit, 'screenshot_task')
+
+    def save_screenshot_and_exit(self, task):
+        self.screenshot('jules-scratch/verification/screenshot.png')
+        self.userExit()
+        return task.done
 
     def handle_collision(self, entry):
         if abs(self.player.current_speed) > 10:

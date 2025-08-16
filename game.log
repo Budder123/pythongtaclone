@@ -1,0 +1,9 @@
+Known pipe types:
+  glxGraphicsPipe
+(1 aux display modules not yet loaded.)
+:display:x11display(error): Could not open display ":0.0".
+:display:egldisplay(warning): Couldn't initialize the default EGL display: EGL_NOT_INITIALIZED
+:display:gsg:glgsg(error): Could not load program: created-shader (The profile is not supported.)
+:display:gsg:glgsg(error): Could not load program: created-shader (The profile is not supported.)
+:display:gsg:glgsg(error): Could not load program: created-shader (The profile is not supported.)
+:display:gsg:glgsg(error): Could not load program: created-shader (The profile is not supported.)
