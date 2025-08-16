@@ -16,9 +16,10 @@ class Player:
         try:
             car_model = self.base.loader.loadModel("assets/models/porsche/scene.gltf")
             car_model.reparentTo(self.visuals_node)
-            # Adjust scale and orientation - this will likely need tuning
+            # Adjust scale and orientation
             car_model.setScale(0.8)
-            car_model.setH(180) # Turn it to face forward
+            car_model.setH(180) # Turn it to face forward (Y-axis)
+            car_model.setP(-90) # Pitch it down to be flat (Z-up)
         except Exception as e:
             print(f"Warning: Could not load Porsche model. Using fallback. Error: {e}")
             # Fallback to procedural car if model fails to load
