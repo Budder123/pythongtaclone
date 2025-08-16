@@ -1,0 +1,11 @@
+Model Information:
+* title:	Porsche 911 RSR (2018)
+* source:	https://sketchfab.com/3d-models/porsche-911-rsr-2018-9b74e7b3348149df9835e4a302d955e6
+* author:	Amerbiy (https://sketchfab.com/amerbi202)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Porsche 911 RSR (2018)" (https://sketchfab.com/3d-models/porsche-911-rsr-2018-9b74e7b3348149df9835e4a302d955e6) by Amerbiy (https://sketchfab.com/amerbi202) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
