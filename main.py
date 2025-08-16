@@ -56,6 +56,7 @@ class Game(ShowBase):
         self.pusher.addCollider(self.player.collider_node, self.player.node)
         self.cTrav.addCollider(self.player.collider_node, self.pusher)
         self.cTrav.addCollider(self.player.collider_node, self.event_handler)
+        self.cTrav.addCollider(self.player.ray_node, self.player.ray_queue)
 
         self.taskMgr.add(self.gameLoop, "gameLoop")
         self.sound_manager.start_engine()
@@ -79,7 +80,6 @@ class Game(ShowBase):
         self.player.update(dt)
         self.ui.update()
         self.sound_manager.update(self.player.speed, self.player.top_speed)
-        self.cTrav.traverse(self.render)
 
         # --- Camera Logic ---
         # 1. Calculate desired position (behind and above player)

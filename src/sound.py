@@ -14,11 +14,7 @@ class SoundManager:
             self.engine_sound = None
             print("Warning: Could not load assets/sounds/engine_idle.ogg")
 
-        try:
-            self.boost_sound = self.base.loader.loadSfx("assets/sounds/engine_rev.ogg")
-        except Exception:
-            self.boost_sound = None
-            print("Warning: Could not load assets/sounds/engine_rev.ogg")
+        self.boost_sound = None
 
         try:
             self.collision_sound = self.base.loader.loadSfx("assets/sounds/exhaust_pop.ogg")
