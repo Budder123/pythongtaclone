@@ -12,18 +12,15 @@ class Player:
 
         self.visuals_node = self.node.attachNewNode("player_visuals")
 
-        # Create a node for the initial rotation
-        self.rotation_node = self.visuals_node.attachNewNode("rotation_node")
-        self.rotation_node.setH(0)
-        self.rotation_node.setP(-90)
-        self.rotation_node.setR(180)
-
         # Load the new car model
         try:
             car_model = self.base.loader.loadModel("assets/models/car/scene.gltf")
-            car_model.reparentTo(self.rotation_node)
-            # Adjust scale
+            car_model.reparentTo(self.visuals_node)
+            # Adjust scale and orientation
             car_model.setScale(0.5)
+            car_model.setH(0)
+            car_model.setP(-90)
+            car_model.setP(car_model.getP() + 180)
         except Exception as e:
             print(f"Warning: Could not load car model. Using fallback. Error: {e}")
             # Fallback to procedural car if model fails to load
