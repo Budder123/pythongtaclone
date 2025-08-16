@@ -7,7 +7,15 @@ class Player:
         self.base = base
         self.sound_manager = sound_manager
 
+        # Suspension Physics
+        self.vertical_velocity = 0.0
+        self.ride_height = 1.0
+        self.spring_strength = 200.0
+        self.damping = 20.0
+        self.gravity = -9.8
+
         self.node = self.base.render.attachNewNode("player")
+        spawn_pos.setZ(self.ride_height)
         self.node.setPos(spawn_pos)
 
         self.visuals_node = self.node.attachNewNode("player_visuals")
@@ -50,13 +58,6 @@ class Player:
         self.wanted_level = 0
         self.boost_level = 100.0
         self.was_boosting = False
-
-        # Suspension Physics
-        self.vertical_velocity = 0.0
-        self.ride_height = 1.0
-        self.spring_strength = 200.0
-        self.damping = 20.0
-        self.gravity = -9.8
 
         # Suspension Ray
         self.ray_node = self.node.attachNewNode(CollisionNode('suspension_ray'))

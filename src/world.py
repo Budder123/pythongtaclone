@@ -16,7 +16,7 @@ class World:
         self.ground.setTexture(self.road_texture)
 
         # Add a collision plane for the ground
-        ground_collider = self.ground.attachNewNode(CollisionNode('ground_collider'))
+        ground_collider = self.base.render.attachNewNode(CollisionNode('ground_collider'))
         ground_collider.node().addSolid(CollisionPlane(Plane(Vec3(0, 0, 1), 0)))
         ground_collider.node().setIntoCollideMask(BitMask32.bit(2))
 
