@@ -1,7 +1,6 @@
 from panda3d.core import LVector3, CollisionNode, CollisionCapsule, BitMask32, CardMaker, Texture, PNMImage, NodePath, Point3
 from direct.interval.IntervalGlobal import Sequence, LerpColorScaleInterval, Func
 from src.vfx import create_boost_effect
-import gltf
 
 class Player:
     def __init__(self, base, sound_manager, spawn_pos):
