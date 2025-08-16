@@ -10,7 +10,7 @@ from src.vfx import create_sparks_effect
 
 class Game(ShowBase):
     def __init__(self):
-        super().__init__(windowType='offscreen')
+        super().__init__()
 
         self.win.setClearColor((0.4, 0.7, 1.0, 1.0))
         self.disableMouse()

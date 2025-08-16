@@ -8,23 +8,23 @@ class SoundManager:
 
         # Load sounds within try-except blocks to handle missing files
         try:
-            self.engine_sound = self.base.loader.loadSfx("assets/sounds/engine.ogg")
+            self.engine_sound = self.base.loader.loadSfx("assets/sounds/engine_idle.ogg")
             self.engine_sound.setLoop(True)
         except Exception:
             self.engine_sound = None
-            print("Warning: Could not load assets/sounds/engine.ogg")
+            print("Warning: Could not load assets/sounds/engine_idle.ogg")
 
         try:
-            self.boost_sound = self.base.loader.loadSfx("assets/sounds/boost.wav")
+            self.boost_sound = self.base.loader.loadSfx("assets/sounds/engine_rev.ogg")
         except Exception:
             self.boost_sound = None
-            print("Warning: Could not load assets/sounds/boost.wav")
+            print("Warning: Could not load assets/sounds/engine_rev.ogg")
 
         try:
-            self.collision_sound = self.base.loader.loadSfx("assets/sounds/collision.wav")
+            self.collision_sound = self.base.loader.loadSfx("assets/sounds/exhaust_pop.ogg")
         except Exception:
             self.collision_sound = None
-            print("Warning: Could not load assets/sounds/collision.wav")
+            print("Warning: Could not load assets/sounds/exhaust_pop.ogg")
 
         try:
             self.skid_sound = self.base.loader.loadSfx("assets/sounds/skid.wav")
