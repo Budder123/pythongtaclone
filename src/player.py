@@ -88,7 +88,6 @@ class Player:
         self.keyMap[key] = value
 
     def update(self, dt):
-        print(self.keyMap)
         is_accelerating = self.keyMap["forward"]
         is_braking = self.keyMap["backward"]
         is_turning = self.keyMap["left"] or self.keyMap["right"]

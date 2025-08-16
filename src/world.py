@@ -88,19 +88,47 @@ class World:
         return tex
 
     def _create_building_texture(self):
-        img_size_x, img_size_y = 64, 128
+        img_size_x, img_size_y = 128, 256
         image = PNMImage(img_size_x, img_size_y, 4)
         image.addAlpha()
-        image.fill(0.05, 0.05, 0.05)
+
+        # Base concrete color with some noise
+        base_color = (0.15, 0.15, 0.17, 1)
+        for y in range(img_size_y):
+            for x in range(img_size_x):
+                noise = (random.random() - 0.5) * 0.05
+                image.setXel(x, y, base_color[0] + noise, base_color[1] + noise, base_color[2] + noise)
+
         image.alpha_fill(1)
-        window_color = (0.9, 0.85, 0.6)
-        for y in range(4, img_size_y, 24):
-            for x in range(4, img_size_x, 16):
-                if random.random() > 0.4:
-                    for win_y in range(y, y + 16):
-                        for win_x in range(x, x + 10):
-                            if win_x < img_size_x and win_y < img_size_y:
-                                image.setXel(win_x, win_y, *window_color)
+
+        # Window properties
+        win_width, win_height = 10, 18
+        win_h_spacing, win_v_spacing = 18, 32
+
+        # Draw windows
+        for y in range(win_v_spacing // 2, img_size_y - win_v_spacing, win_v_spacing):
+            for x in range(win_h_spacing // 2, img_size_x - win_h_spacing, win_h_spacing):
+                # Decide if window is lit
+                is_lit = random.random() > 0.6
+                win_color = (0.85, 0.8, 0.6) if is_lit else (0.1, 0.1, 0.12)
+
+                # Draw window pane
+                for iy in range(y, y + win_height):
+                    for ix in range(x, x + win_width):
+                        if ix < img_size_x and iy < img_size_y:
+                            image.setXel(ix, iy, *win_color)
+
+                # Draw subtle window frame
+                frame_color = (0.05, 0.05, 0.05)
+                for ix in range(x - 1, x + win_width + 1):
+                     if 0 <= ix < img_size_x:
+                        if 0 <= y-1 < img_size_y: image.setXel(ix, y - 1, *frame_color)
+                        if 0 <= y+win_height < img_size_y: image.setXel(ix, y + win_height, *frame_color)
+                for iy in range(y - 1, y + win_height + 1):
+                    if 0 <= iy < img_size_y:
+                        if 0 <= x-1 < img_size_x: image.setXel(x - 1, iy, *frame_color)
+                        if 0 <= x+win_width < img_size_x: image.setXel(x + win_width, iy, *frame_color)
+
         tex = Texture()
         tex.load(image)
         tex.setWrapU(Texture.WM_repeat)
@@ -121,14 +149,15 @@ class World:
     def create_building(self, x, y, width, depth):
         building = self.base.loader.loadModel("models/box")
         building.reparentTo(self.base.render)
-        building.setPos(x, y, 0)
         building_height = random.uniform(15, 40)
-        building_color = random.uniform(0.4, 0.7)
+        building.setPos(x, y, building_height / 2.0) # Position so base is at z=0
         building.setScale(width / 2.0, depth / 2.0, building_height / 2.0)
-        building.setColor(building_color, building_color, building_color, 1)
         building.setTexture(self.building_texture)
+        building.setTexScale(TextureStage.getDefault(), width / 10, building_height / 10)
         self.buildings.append(building)
-        c_solid = CollisionBox(Point3(-width/2, -depth/2, 0), Point3(width/2, depth/2, building_height))
+        # Create a unit collision box that matches the "models/box" model.
+        # It will be automatically scaled by the building's scale.
+        c_solid = CollisionBox(Point3(-1, -1, -1), Point3(1, 1, 1))
         c_node = CollisionNode('building_collider')
         c_node.addSolid(c_solid)
         c_node.setFromCollideMask(BitMask32.bit(1))
