@@ -26,12 +26,13 @@ class SoundManager:
             self.collision_sound = None
             print("Warning: Could not load assets/sounds/exhaust_pop.ogg")
 
-        try:
-            self.skid_sound = self.base.loader.loadSfx("assets/sounds/skid.wav")
-            self.skid_sound.setLoop(True)
-        except Exception:
-            self.skid_sound = None
-            print("Warning: Could not load assets/sounds/skid.wav")
+        # try:
+        #     self.skid_sound = self.base.loader.loadSfx("assets/sounds/skid.wav")
+        #     self.skid_sound.setLoop(True)
+        # except Exception:
+        #     self.skid_sound = None
+        #     print("Warning: Could not load assets/sounds/skid.wav")
+        self.skid_sound = None
 
         self.is_skidding = False
 

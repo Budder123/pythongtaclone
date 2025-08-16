@@ -63,12 +63,6 @@ class Game(ShowBase):
         self.shake_magnitude = 0.8
         self.sparks_vfx = create_sparks_effect(self)
 
-        self.taskMgr.doMethodLater(2, self.save_screenshot_and_exit, 'screenshot_task')
-
-    def save_screenshot_and_exit(self, task):
-        self.screenshot('jules-scratch/verification/screenshot.png')
-        self.userExit()
-        return task.done
 
     def handle_collision(self, entry):
         if abs(self.player.current_speed) > 10:
