@@ -18,8 +18,9 @@ class Player:
             car_model.reparentTo(self.visuals_node)
             # Adjust scale and orientation
             car_model.setScale(0.5)
-            car_model.setH(180)
+            car_model.setH(0)
             car_model.setP(-90)
+            car_model.setR(180)
         except Exception as e:
             print(f"Warning: Could not load car model. Using fallback. Error: {e}")
             # Fallback to procedural car if model fails to load
