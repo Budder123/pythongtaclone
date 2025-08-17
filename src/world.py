@@ -92,12 +92,8 @@ class World:
         image = PNMImage(img_size_x, img_size_y, 4)
         image.addAlpha()
 
-        # Base concrete color with some noise
-        base_color = (0.15, 0.15, 0.17, 1)
-        for y in range(img_size_y):
-            for x in range(img_size_x):
-                noise = (random.random() - 0.5) * 0.05
-                image.setXel(x, y, base_color[0] + noise, base_color[1] + noise, base_color[2] + noise)
+        # Base white color
+        image.fill(1, 1, 1)
 
         image.alpha_fill(1)
 
@@ -110,7 +106,7 @@ class World:
             for x in range(win_h_spacing // 2, img_size_x - win_h_spacing, win_h_spacing):
                 # Decide if window is lit
                 is_lit = random.random() > 0.6
-                win_color = (0.85, 0.8, 0.6) if is_lit else (0.1, 0.1, 0.12)
+                win_color = (0.7, 0.85, 1.0) if is_lit else (0.1, 0.1, 0.12)
 
                 # Draw window pane
                 for iy in range(y, y + win_height):
@@ -150,7 +146,7 @@ class World:
         building = self.base.loader.loadModel("models/box")
         building.reparentTo(self.base.render)
         building_height = random.uniform(15, 40)
-        building.setPos(x, y, building_height / 2.0) # Position so base is at z=0
+        building.setPos(x, y, 0) # Place building centered at z=0 to avoid floating
         building.setScale(width / 2.0, depth / 2.0, building_height / 2.0)
         building.setTexture(self.building_texture)
         building.setTexScale(TextureStage.getDefault(), width / 10, building_height / 10)
