@@ -21,7 +21,7 @@ class Player:
             car_model.setH(180)
             car_model.setP(90)
         except Exception as e:
-            print(f"Warning: Could not load car model. Using fallback. Error: {e}")
+            print(f"Warning: Could not load player model. Using fallback. Error: {e}")
             # Fallback to procedural car if model fails to load
             chassis = self.base.loader.loadModel("models/box")
             chassis.reparentTo(self.visuals_node)

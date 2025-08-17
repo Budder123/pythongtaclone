@@ -5,11 +5,34 @@ class SoundManager:
     """
     def __init__(self, base):
         self.base = base
-        self.engine_sound = None
-        self.boost_sound = None
-        self.collision_sound = None
-        self.skid_sound = None
         self.is_skidding = False
+
+        # Load sounds, with graceful failure
+        try:
+            self.engine_sound = self.base.loader.loadSfx("assets/sounds/engine.ogg")
+            self.engine_sound.setLoop(True)
+        except Exception as e:
+            print(f"Warning: Could not load engine sound. {e}")
+            self.engine_sound = None
+
+        try:
+            self.boost_sound = self.base.loader.loadSfx("assets/sounds/boost.ogg")
+        except Exception as e:
+            print(f"Warning: Could not load boost sound. {e}")
+            self.boost_sound = None
+
+        try:
+            self.collision_sound = self.base.loader.loadSfx("assets/sounds/collision.ogg")
+        except Exception as e:
+            print(f"Warning: Could not load collision sound. {e}")
+            self.collision_sound = None
+
+        try:
+            self.skid_sound = self.base.loader.loadSfx("assets/sounds/skid.ogg")
+            self.skid_sound.setLoop(True)
+        except Exception as e:
+            print(f"Warning: Could not load skid sound. {e}")
+            self.skid_sound = None
 
     def start_engine(self):
         """Starts the looping engine sound."""
