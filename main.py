@@ -1,11 +1,13 @@
 from direct.showbase.ShowBase import ShowBase
-from panda3d.core import CollisionTraverser, CollisionHandlerPusher, CollisionHandlerEvent, GraphicsOutput, GraphicsPipe, FrameBufferProperties, WindowProperties, OrthographicLens, AmbientLight, DirectionalLight, LVector3, Vec3
+from panda3d.core import CollisionTraverser, CollisionHandlerPusher, CollisionHandlerEvent, GraphicsOutput, GraphicsPipe, FrameBufferProperties, WindowProperties, OrthographicLens, AmbientLight, DirectionalLight, LVector3, Vec3, Point3
 from direct.interval.IntervalGlobal import Sequence, Wait, Func
 import random
 from src.world import World
 from src.player import Player
 from src.ui import UI
 from src.sound import SoundManager
+from src.npc import NPC
+from panda3d.core import CollisionNode, CollisionCapsule
 from src.vfx import create_sparks_effect
 
 class Game(ShowBase):
@@ -35,6 +37,25 @@ class Game(ShowBase):
         self.sound_manager = SoundManager(self)
         spawn_point = self.world.get_safe_spawn_point()
         self.player = Player(self, self.sound_manager, spawn_point)
+
+        self.npcs = []
+        num_npcs = 15
+        for _ in range(num_npcs):
+            spawn_grid_pos = random.choice(self.world.waypoint_nodes)
+            spawn_world_pos = self.world.grid_to_world_map[spawn_grid_pos]
+            npc = NPC(self, self.world, spawn_world_pos)
+
+            # Set up collision for the NPC
+            c_solid = CollisionCapsule(Point3(0, -0.5, 0), Point3(0, 0.5, 0.8), 0.6)
+            c_node = CollisionNode(f'npc_{_}_collider')
+            c_node.addSolid(c_solid)
+            c_node.setFromCollideMask(BitMask32.bit(1))
+            c_node.setIntoCollideMask(BitMask32.allOff()) # NPCs don't collide with each other
+            c_np = npc.node.attachNewNode(c_node)
+            self.pusher.addCollider(c_np, npc.node)
+            self.cTrav.addCollider(c_np, self.pusher)
+
+            self.npcs.append(npc)
 
         # Set up the minimap camera (remains top-down)
         self.minimap_buffer = self.win.makeTextureBuffer("Minimap", 256, 256)
@@ -76,6 +97,8 @@ class Game(ShowBase):
         dt = globalClock.getDt()
 
         self.player.update(dt)
+        for npc in self.npcs:
+            npc.update(dt)
         self.ui.update()
         self.sound_manager.update(self.player.speed, self.player.top_speed)
         self.cTrav.traverse(self.render)

@@ -16,6 +16,38 @@ class World:
         self.ground.setTexture(self.road_texture)
 
         self.generate_city()
+        self._generate_waypoints()
+
+    def _grid_to_world(self, x, y):
+        """Converts grid coordinates to world coordinates."""
+        offset_x = (self.map_size_x * self.cell_size) / 2.0
+        offset_y = (self.map_size_y * self.cell_size) / 2.0
+        pos_x = x * self.cell_size - offset_x + self.cell_size / 2.0
+        pos_y = y * self.cell_size - offset_y + self.cell_size / 2.0
+        return Point3(pos_x, pos_y, 0.5)
+
+    def _generate_waypoints(self):
+        """Generates a waypoint graph from the road sections of the city map."""
+        self.grid_to_world_map = {}
+        # First, map grid coordinates to world positions for all road cells
+        for y, row in enumerate(self.city_map):
+            for x, cell in enumerate(row):
+                if cell == 0:
+                    self.grid_to_world_map[(x, y)] = self._grid_to_world(x, y)
+
+        self.waypoints = {grid_pos: [] for grid_pos in self.grid_to_world_map.keys()}
+
+        # Now, connect adjacent waypoints using grid coordinates
+        for (x, y) in self.grid_to_world_map.keys():
+            # Check neighbors
+            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                neighbor_grid_pos = (x + dx, y + dy)
+                if neighbor_grid_pos in self.grid_to_world_map:
+                    self.waypoints[(x, y)].append(neighbor_grid_pos)
+
+        # For easier random access by NPCs
+        self.waypoint_nodes = list(self.grid_to_world_map.keys())
+
 
     def generate_city(self):
         """
