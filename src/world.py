@@ -149,9 +149,9 @@ class World:
         # Set Z to a small positive value to avoid both sinking and floating artifacts
         building.setPos(x, y, 0.5)
         building.setScale(width / 2.0, depth / 2.0, building_height / 2.0)
-        building.setColor(1, 1, 1, 1) # Set building color to white
-        # building.setTexture(self.building_texture)
-        # building.setTexScale(TextureStage.getDefault(), width / 10, building_height / 10)
+        building.setColor(1, 1, 1, 1) # Ensure model is white
+        building.setTexture(self.building_texture)
+        building.setTexScale(TextureStage.getDefault(), width / 10, building_height / 10)
         self.buildings.append(building)
         # Create a unit collision box that matches the "models/box" model.
         # It will be automatically scaled by the building's scale.
